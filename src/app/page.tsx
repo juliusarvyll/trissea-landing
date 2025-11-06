@@ -1,67 +1,8 @@
 "use client"
 import Image from "next/image";
 import FeaturesSection from "./components/FeaturesSection";
-import { useState } from "react";
-import { app } from '../../firebase';
-import { getAuth, deleteUser, signInWithEmailAndPassword } from "firebase/auth";
-import { getFirestore, doc, deleteDoc } from "firebase/firestore";
 
 export default function Home() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
-
-  const auth = getAuth(app);
-  const db = getFirestore(app);
-
-  const handleDeleteRequest = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setMessage("");
-    setError("");
-
-    // Warning before proceeding with deletion
-    const confirmDelete = window.confirm("Are you sure you want to delete your account? This action cannot be undone.");
-    if (!confirmDelete) {
-        setError("Account deletion canceled.");
-        return; // Exit the function if the user cancels
-    }
-
-    // Debugger before signing in
-    debugger; // Check email and password before sign-in
-    signInWithEmailAndPassword(auth, email, password)
-        .then(async (userCredential) => {
-            debugger; // Check userCredential after sign-in
-            const user = userCredential.user;
-
-            if (user) {
-                // Delete user data from Firestore
-                const userId = user.uid; // Get the user ID
-                try {
-                    await deleteDoc(doc(db, "passengers", userId)); // Delete the document from Firestore
-                    console.log("User data deleted from Firestore");
-
-                    // Now delete the user account
-                    await deleteUser(user);
-                    const userName = user.displayName || "User"; // Get the user's display name or default to "User"
-                    setMessage(`Goodbye, ${userName}. Your account has been deleted successfully.`);
-                    setEmail("");
-                    setPassword("");
-                } catch (error) {
-                    console.error("Error deleting user data from Firestore:", error);
-                    setError("Failed to delete user data.");
-                }
-            } else {
-                setError("No authenticated user found.");
-            }
-        })
-        .catch((error) => {
-            const errorCode = error.code;
-            const errorMessage = error.message;
-            console.error("Error signing in:", error);
-            setError(errorMessage); // Display error message
-        });
-  };
 
   return (
     <>
@@ -69,10 +10,10 @@ export default function Home() {
         <div className="grid max-w-screen-xl px-4 pt-20 pb-8 mx-auto lg:gap-8 xl:gap-0 lg:py-16 lg:grid-cols-12 lg:pt-28">
           <div className="mr-auto place-self-center lg:col-span-7">
             <h1 className="max-w-2xl mb-4 text-4xl font-extrabold leading-none tracking-tight md:text-5xl xl:text-6xl dark:text-white">
-              Your Local Ride, <br />Just a Tap Away.
+              Your TODA Ride, <br />Just a Tap Away.
             </h1>
             <p className="max-w-2xl mb-6 font-light text-gray-500 lg:mb-8 md:text-lg lg:text-xl dark:text-gray-400">
-              Experience hassle-free local transportation with Trissea in Tuguegarao City. Book tricycles instantly, track your ride in real-time, and travel safely within your community.
+              Experience hassle-free TODA transportation with Trissea in Tuguegarao City. Queue-based booking system with shared rides, real-time tracking, and seamless ride-sharing for up to 5 passengers per trip.
             </p>
             <div className="space-y-4 sm:flex sm:space-y-0 sm:space-x-4">
               {/* Download buttons */}
@@ -97,51 +38,145 @@ export default function Home() {
         </div>
         <FeaturesSection />
       </section>
-      
 
-      {/* Account Deletion Section */}
-      <section className="bg-gray-100 dark:bg-gray-800 py-12">
+      {/* Key Features Section */}
+      <section className="bg-gray-50 dark:bg-gray-800 py-16">
         <div className="max-w-screen-xl px-4 mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-6 text-gray-800 dark:text-white">
-            Request Account Deletion
+          <h2 className="text-3xl font-bold text-center mb-12 text-gray-800 dark:text-white">
+            How Trissea Works
           </h2>
-          <p className="text-center mb-8 text-gray-600 dark:text-gray-300">
-            We're sorry to see you go. Please provide your email and password below to delete your account.
-          </p>
-          <form onSubmit={handleDeleteRequest} className="max-w-md mx-auto flex flex-col items-center">
-            <input
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Your Email"
-              className="w-full px-4 py-2 mb-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-            />
-            <input
-              type="password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Your Password"
-              className="w-full px-4 py-2 mb-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-            />
-            <button
-              type="submit"
-              className="w-full px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-400 focus:outline-none focus:ring-2 focus:ring-red-500"
-            >
-              Delete Account
-            </button>
-          </form>
-          {message && (
-            <p className="mt-4 text-center text-green-600 dark:text-green-400">
-              {message}
-            </p>
-          )}
-          {error && (
-            <p className="mt-4 text-center text-red-600 dark:text-red-400">
-              {error}
-            </p>
-          )}
+          <div className="grid md:grid-cols-2 gap-8">
+            {/* Passenger Features */}
+            <div className="bg-white dark:bg-gray-900 p-6 rounded-lg shadow-lg">
+              <h3 className="text-2xl font-bold mb-4 text-green-600 dark:text-green-400">
+                🚶 For Passengers
+              </h3>
+              <ul className="space-y-3 text-gray-600 dark:text-gray-300">
+                <li className="flex items-start">
+                  <span className="mr-2">📍</span>
+                  <span><strong>Book Rides:</strong> Select pickup and dropoff locations on the map</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="mr-2">👥</span>
+                  <span><strong>Shared Rides:</strong> Join trips with up to 5 passengers</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="mr-2">📊</span>
+                  <span><strong>Queue System:</strong> See your position and estimated departure time</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="mr-2">🔔</span>
+                  <span><strong>Real-Time Updates:</strong> Get notified when passengers join or trip starts</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="mr-2">💰</span>
+                  <span><strong>Transparent Fares:</strong> See fare breakdown before booking</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="mr-2">📜</span>
+                  <span><strong>Trip History:</strong> View all your past and active bookings</span>
+                </li>
+              </ul>
+            </div>
+
+            {/* Driver Features */}
+            <div className="bg-white dark:bg-gray-900 p-6 rounded-lg shadow-lg">
+              <h3 className="text-2xl font-bold mb-4 text-blue-600 dark:text-blue-400">
+                🚗 For Drivers
+              </h3>
+              <ul className="space-y-3 text-gray-600 dark:text-gray-300">
+                <li className="flex items-start">
+                  <span className="mr-2">🎯</span>
+                  <span><strong>Join Queue:</strong> Enter TODA queue and wait for passengers</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="mr-2">👥</span>
+                  <span><strong>Manage Passengers:</strong> Track passengers joining your trip in real-time</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="mr-2">🚦</span>
+                  <span><strong>Start Trip:</strong> Begin trip when ready or when booking is full</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="mr-2">✅</span>
+                  <span><strong>Complete Trip:</strong> Mark trip as completed and collect fare</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="mr-2">💵</span>
+                  <span><strong>Earnings Tracking:</strong> View trip history and earnings</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="mr-2">🔔</span>
+                  <span><strong>Notifications:</strong> Get alerted when passengers join or leave</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Booking Flow Section */}
+      <section className="bg-white dark:bg-gray-900 py-16">
+        <div className="max-w-screen-xl px-4 mx-auto">
+          <h2 className="text-3xl font-bold text-center mb-12 text-gray-800 dark:text-white">
+            Simple Booking Process
+          </h2>
+          <div className="grid md:grid-cols-4 gap-6">
+            <div className="text-center">
+              <div className="bg-green-100 dark:bg-green-900 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl font-bold text-green-600 dark:text-green-300">1</span>
+              </div>
+              <h3 className="font-bold mb-2 text-gray-800 dark:text-white">Select Location</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Choose pickup and dropoff points on the map</p>
+            </div>
+            <div className="text-center">
+              <div className="bg-green-100 dark:bg-green-900 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl font-bold text-green-600 dark:text-green-300">2</span>
+              </div>
+              <h3 className="font-bold mb-2 text-gray-800 dark:text-white">Join Queue</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Book your ride and join the TODA queue</p>
+            </div>
+            <div className="text-center">
+              <div className="bg-green-100 dark:bg-green-900 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl font-bold text-green-600 dark:text-green-300">3</span>
+              </div>
+              <h3 className="font-bold mb-2 text-gray-800 dark:text-white">Wait & Track</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Get real-time updates as passengers join</p>
+            </div>
+            <div className="text-center">
+              <div className="bg-green-100 dark:bg-green-900 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl font-bold text-green-600 dark:text-green-300">4</span>
+              </div>
+              <h3 className="font-bold mb-2 text-gray-800 dark:text-white">Ride & Pay</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Enjoy your ride and pay the driver</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Technology Stack Section */}
+      <section className="bg-gray-50 dark:bg-gray-800 py-16">
+        <div className="max-w-screen-xl px-4 mx-auto">
+          <h2 className="text-3xl font-bold text-center mb-12 text-gray-800 dark:text-white">
+            Powered by Modern Technology
+          </h2>
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="text-center">
+              <div className="text-4xl mb-4">🔄</div>
+              <h3 className="font-bold mb-2 text-gray-800 dark:text-white">Real-Time Updates</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Pusher integration for instant notifications and live booking updates</p>
+            </div>
+            <div className="text-center">
+              <div className="text-4xl mb-4">🗺️</div>
+              <h3 className="font-bold mb-2 text-gray-800 dark:text-white">Google Maps</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Accurate location tracking and route planning</p>
+            </div>
+            <div className="text-center">
+              <div className="text-4xl mb-4">🔐</div>
+              <h3 className="font-bold mb-2 text-gray-800 dark:text-white">Secure & Safe</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Firebase authentication and encrypted data storage</p>
+            </div>
+          </div>
         </div>
       </section>
     </>
